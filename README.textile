@@ -1,0 +1,50 @@
+h1. Wolverine
+
+An apetite for logs.
+
+h2. Synopsis
+
+  include Wolverine
+  requests = LogSource.new("log/production.log").append_indented.
+    fields(/.../, :timestamp, :host, :pid).
+    group(:following => :pid, :from => /: Processing/).
+    fields(/Processing (\w+)#(\w+)/, :controller, :action).
+    fields(/Session ID: (\w+)/, :session_id)
+
+  by_hosts = requests.count_by(:host).histogram
+  accounts_requests = requests.where(:controller => "AccountsController")
+
+  sessions = requests.group(:following => :session_id)
+  extended_sessions = sessions.fields(/new session id: (\w)/, :new_session_id).
+    link(:session_id => :new_session_id)
+
+  # Evaluate in one pass over data without slurping it all into memory
+  h, r, s = coevaluate(by_hosts, account_requests, sessions)
+
+  alert1 = requests.sliding_window(5.minutes).
+    on_match do |match|... end
+  
+  # Monitoring / alerting; never returns
+  coevaluate(alert1)
+
+  # Re-usable source (or should we just use functions??)
+  pipeline = ReplacableSource.new(...).do_stuff
+  pipeline.with_source(TailSource(...))
+
+h2. Summary
+
+Wolverine is a library for processing log files as streams.  Typical
+processing will start with a source for events and then filter them.
+Filters are built-up with method calls and return another stream whose
+evaluation can be forced with @each@ or left to evaluate later.
+
+When several processes need to be evaluated at once, the coevaluate
+helper can be used to ensure that, with one pass over the source, the
+minimum memory footprint is used.  When processing branches, events
+will be passed to each downstream filter in turn, giving each a chance
+to pass it along to its downstream filters before continuing.  This
+avoids a need to buffer the entire stream while one branch in the
+filter pipline processes them until the next one processes them.
+
+Events may be stored in a database for easy indexing, see the
+IndexedSource and its children.
