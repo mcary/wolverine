@@ -6,5 +6,8 @@ module Wolverine
     def count
       CountFilter.new(self)
     end
+    def field(regex, *fields)
+      FieldFilter.new(self, regex, *fields)
+    end
   end
 end
