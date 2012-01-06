@@ -1,6 +1,7 @@
 module Wolverine
 end
 
+require 'wolverine/enumerable'
 require 'wolverine/source'
 require 'wolverine/file_source'
 require 'wolverine/array_source'

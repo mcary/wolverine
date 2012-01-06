@@ -1,7 +1,8 @@
-class Wolverine::Source
-  include Enumerable
-  def each(&block)
-    raise "abstract"
-    yield event
+module Wolverine
+  class Source < Wolverine::Enumerable
+    def each(&block)
+      raise Exception, "Override me"
+      yield event
+    end
   end
 end

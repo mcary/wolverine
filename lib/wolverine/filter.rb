@@ -1,6 +1,5 @@
 module Wolverine
-  # Hrm... a filter emits events but isn't really a source...
-  class Filter < Source
+  class Filter < Wolverine::Enumerable
     def initialize(source)
       @source = source
     end
