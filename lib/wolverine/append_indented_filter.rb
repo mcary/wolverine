@@ -1,35 +1,27 @@
 module Wolverine
   class AppendIndentedFilter < Filter
     def each
-      evts = nil
+      merged_evt = nil
       @source.each do |evt|
         if evt.to_s.start_with? prefix
-          if !evts.nil?
-            evts.push evt
+          if merged_evt
+            merged_evt = merge_events(merged_evt, evt)
             # else drop the partial event
           end
         else
-          if !evts.nil?
-            yield merge_events(evts)
+          if merged_evt
+            yield merged_evt
           end
-          evts = [evt]
+          merged_evt = evt
         end
       end
-      if !evts.nil?
-        yield merge_events(evts)
+      if merged_evt
+        yield merged_evt
       end
     end
-    def merge_events(evts)
-      if evts.size == 1
-        evts.first
-      else
-        text = evts.shift.to_s
-        text += evts.map do |evt|
-          str = evt.to_s
-          str.slice(prefix.length..str.length)
-        end.join("")
-        Event.new(text)
-      end
+    def merge_events(ev1, ev2)
+      str = ev2.to_s
+      Event.new(ev1.to_s + str.slice(prefix.length..str.length))
     end
     def prefix
       "  "
