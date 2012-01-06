@@ -1,6 +1,7 @@
 module Wolverine
 end
 
+require 'wolverine/filter_dsl'
 require 'wolverine/enumerable'
 require 'wolverine/source'
 require 'wolverine/file_source'
