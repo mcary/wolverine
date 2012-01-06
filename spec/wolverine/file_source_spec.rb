@@ -7,7 +7,7 @@ describe Wolverine::FileSource do
       file.write("foo\nbar\n")
       file.flush
       src = Wolverine::FileSource.new file.path
-      ary = src.map {|ev| ev.to_s}
+      ary = src.to_strings
     end
 
     ary.should == ["foo\n", "bar\n"]
@@ -18,7 +18,7 @@ describe Wolverine::FileSource do
       file.write("foo")
       file.flush
       src = Wolverine::FileSource.new file.path
-      ary = src.map {|ev| ev.to_s}
+      ary = src.to_strings
     end
 
     ary.should == ["foo"]
