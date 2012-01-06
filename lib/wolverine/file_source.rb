@@ -1,6 +1,5 @@
 module Wolverine
   class FileSource < Source
-    include Enumerable
     def initialize(filename)
       @filename = filename
     end
