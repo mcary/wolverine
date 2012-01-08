@@ -9,8 +9,8 @@ module Wolverine
     def field(regex, *fields)
       FieldFilter.new(self, regex, *fields)
     end
-    def head(count)
-      HeadFilter.new(self, count)
+    def head(count, opts={})
+      HeadFilter.new(self, count, opts)
     end
   end
 end
