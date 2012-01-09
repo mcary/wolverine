@@ -20,4 +20,12 @@ describe Wolverine::FileSource do
       src.to_a
     }.should raise_error
   end
+  it "should accept where.not(conditions)" do
+    Source.new.where.not(:foo => "bar").count
+  end
+  it "should not accept where(conditions).not" do
+    lambda {
+      Source.new.where(:foo => "bar").not
+    }.should raise_error(NoMethodError)
+  end
 end

@@ -12,8 +12,8 @@ module Wolverine
     def head(count, opts={})
       HeadFilter.new(self, count, opts)
     end
-    def where(conds)
-      WhereFilter.new(self, conds)
+    def where(conditions=nil)
+      WhereFilter.where(self, conditions)
     end
   end
 end

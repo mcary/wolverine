@@ -1,8 +1,12 @@
 require File.dirname(__FILE__)+"/../spec_helper"
 describe Wolverine::WhereFilter do
-  it "should select only matching events" do
+  it "should select only events matching hash" do
     filt = Wolverine::WhereFilter.new(source(%w{x y}),
                                      :to_s => "x")
+    filt.to_strings.should == ["x"]
+  end
+  it "should select only events matching Regexp" do
+    filt = Wolverine::WhereFilter.new(source(%w{x y}), /x/)
     filt.to_strings.should == ["x"]
   end
   it "should support regexp matching" do
