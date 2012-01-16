@@ -15,5 +15,8 @@ module Wolverine
     def where(conditions=nil)
       WhereFilter.where(self, conditions)
     end
+    def less
+      LessSink.new(self).run
+    end
   end
 end
