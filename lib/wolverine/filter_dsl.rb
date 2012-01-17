@@ -18,5 +18,8 @@ module Wolverine
     def less
       LessSink.new(self).run
     end
+    def group(opts)
+      GroupFilter.new(self, opts)
+    end
   end
 end
