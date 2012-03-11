@@ -8,7 +8,8 @@ module Wolverine
       @class.class_eval <<-EOF
         def initialize(text, *flds)
           super(text)
-          #{@fields.map {|f| "@#{f}" }.join(", ")} = flds
+          #{@fields.map {|f| "@#{f}" }.join(", ")} =
+            #{@fields.size > 1 ? "flds" : "flds.first"}
         end
       EOF
       @class.send(:attr_reader, *@fields)

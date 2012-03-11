@@ -9,6 +9,14 @@ describe Wolverine::FieldFilter do
     evt.pid.should == "pid"
     evt.msg.should == "foo"
   end
+  # This edge case prevously broke at the multiple-assignment construct
+  it "should construct events with a single matching field" do
+    filt = Wolverine::FieldFilter.
+      new(source(["host pid: foo"]),
+          /(\w+)/, :host)
+    evt = filt.first
+    evt.host.should == "host"
+  end
   it "should construct events that raise errors for invalid field names" do
     filt = Wolverine::FieldFilter.
       new(source(["host pid: foo"]),
