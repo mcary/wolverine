@@ -3,9 +3,6 @@ module Wolverine
     def append_indented
       AppendIndentedFilter.new(self)
     end
-    def count
-      CountFilter.new(self)
-    end
     def field(regex, *fields)
       FieldFilter.new(self, regex, *fields)
     end
@@ -14,6 +11,9 @@ module Wolverine
     end
     def where(conditions=nil)
       WhereFilter.where(self, conditions)
+    end
+    def count
+      CountSink.new(self).run
     end
     def less
       LessSink.new(self).run

@@ -1,8 +1,5 @@
 module Wolverine
-  class LessSink
-    def initialize(source)
-      @source = source
-    end
+  class LessSink < Sink
     def run
       IO.popen(pager_command, "a") do |pipe|
         @source.each {|evt| pipe.puts evt }
