@@ -26,6 +26,18 @@ describe Wolverine::FieldFilter do
       evt.foo
     }.should raise_error
   end
+  it "should preserve previously created fields" do
+    filt = Wolverine::FieldFilter.
+      new(source(["host pid: foo"]),
+          /(\w+) (\w+):/, :host, :pid)
+    filt = Wolverine::FieldFilter.
+      new(filt,
+          /: (.*)\Z/, :msg)
+    evt = filt.first
+    evt.host.should == "host"
+    evt.pid.should == "pid"
+    evt.msg.should == "foo"
+  end
   it "should return nil not raise when accessing unmatched fields" do
     filt = Wolverine::FieldFilter.
       new(source([" "]), /(\w+)/, :host)

@@ -6,10 +6,15 @@ module Wolverine
       @fields = fields
       @class = Class.new(Event)
       @class.class_eval <<-EOF
-        def initialize(text, *flds)
+        def initialize(text, evt, *flds)
           super(text)
+          @evt = evt
           #{@fields.map {|f| "@#{f}" }.join(", ")} =
             #{@fields.size > 1 ? "flds" : "flds.first"}
+        end
+        def method_missing(name, *args)
+          # Danger: bypassing method access modifier (private/protected)
+          @evt.send(name) if args.empty?
         end
       EOF
       @class.send(:attr_reader, *@fields)
@@ -18,10 +23,10 @@ module Wolverine
       @source.each do |evt|
         md = @regex.match(evt.to_s)
         if md
-          yield @class.new(evt.to_s, *md[1..md.length])
+          yield @class.new(evt.to_s, evt, *md[1..md.length])
         else
           # Tired of no such method exceptions...
-          yield @class.new(evt.to_s, *@fields.map {nil})
+          yield @class.new(evt.to_s, evt, *@fields.map {nil})
           # was:
           #yield evt
         end
