@@ -26,6 +26,12 @@ describe Wolverine::FieldFilter do
       evt.foo
     }.should raise_error
   end
+  it "should return nil not raise when accessing unmatched fields" do
+    filt = Wolverine::FieldFilter.
+      new(source([" "]), /(\w+)/, :host)
+    evt = filt.first
+    evt.host.should == nil
+  end
   def source(ary)
     Wolverine::ArraySource.new(ary)
   end

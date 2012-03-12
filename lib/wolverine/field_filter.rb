@@ -20,7 +20,10 @@ module Wolverine
         if md
           yield @class.new(evt.to_s, *md[1..md.length])
         else
-          yield evt
+          # Tired of no such method exceptions...
+          yield @class.new(evt.to_s, *@fields.map {nil})
+          # was:
+          #yield evt
         end
       end
     end
