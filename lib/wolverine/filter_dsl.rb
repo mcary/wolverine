@@ -18,6 +18,9 @@ module Wolverine
     def less
       LessSink.new(self).run
     end
+    def save_file(filename)
+      FileSink.new(self, filename).run
+    end
     def group(opts)
       GroupFilter.new(self, opts)
     end
