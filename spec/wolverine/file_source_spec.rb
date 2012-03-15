@@ -23,5 +23,17 @@ describe Wolverine::FileSource do
 
     ary.should == ["foo"]
   end
+  it "should unzip a file ending in .gz" do
+    ary = []
+    tmpfile = "rspec.#{$$}.tmp.gz"
+    begin
+      `echo hi | gzip > #{tmpfile}`
+      src = Wolverine::FileSource.new tmpfile
+      ary = src.to_strings
+      ary.should == ["hi\n"]
+    ensure
+      File.unlink tmpfile
+    end
+  end
 end
 
