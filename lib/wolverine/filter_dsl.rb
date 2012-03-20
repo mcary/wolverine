@@ -21,6 +21,9 @@ module Wolverine
     def save_file(filename)
       FileSink.new(self, filename).run
     end
+    def save_records(active_record_klass)
+      ActiveRecordSink.new(self, active_record_klass).run
+    end
     def group(opts)
       GroupFilter.new(self, opts)
     end
