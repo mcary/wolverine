@@ -18,7 +18,7 @@ module Wolverine
       self.new(klass)
     end
     def each
-      @klass.find(:all, @conds) {|rec| yield rec }
+      @klass.find(:all, :conditions => @conds) {|rec| yield rec }
     end
     def where(conditions={})
       @conds = conditions
