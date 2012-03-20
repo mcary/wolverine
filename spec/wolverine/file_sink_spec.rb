@@ -1,13 +1,13 @@
 require File.dirname(__FILE__)+"/../spec_helper"
+require "tempfile"
 describe Wolverine::FileSink do
   it "should write events to a file" do
-    tmpfile = "spec.#{$$}.tmp"
-    sink = Wolverine::FileSink.new(Wolverine::ArraySource.new(%w{x}), tmpfile)
-    begin
+    Tempfile.open("wol-spec") do |file|
+      tmpfile = file.path
+      sink = Wolverine::FileSink.new(Wolverine::ArraySource.new(%w{x}), tmpfile)
+
       sink.run
       File.read(tmpfile).should == "x"
-    ensure
-      File.unlink tmpfile
     end
   end
 end

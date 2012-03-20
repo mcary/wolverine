@@ -1,14 +1,13 @@
 require File.dirname(__FILE__)+"/../spec_helper"
+require "tempfile"
 describe Wolverine::LessSink do
   it "should pipe events to the pager" do
-    tmpfile = "spec.#{$$}.tmp"
-    sink = Wolverine::LessSink.new(Wolverine::ArraySource.new(%w{y}))
-    sink.stub!(:pager_command => "/bin/cat > #{tmpfile}")
-    begin
+    Tempfile.open("wol-spec") do |file|
+      sink = Wolverine::LessSink.new(Wolverine::ArraySource.new(%w{y}))
+      sink.stub!(:pager_command => "/bin/cat > #{file.path}")
+
       sink.run
-      File.read(tmpfile).should == "y\n"
-    ensure
-      File.unlink tmpfile
+      File.read(file.path).should == "y\n"
     end
   end
   it "should return nil to avoid irb spew" do
