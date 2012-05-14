@@ -18,11 +18,42 @@ module Wolverine
       self.new(klass)
     end
     def each
-      @klass.find(:all, :conditions => @conds) {|rec| yield rec }
+      if can_search_with_conditions
+        evts = @klass.where({})
+        evts = evts.where(@conds) if !@conds.empty?
+        evts = evts.where(["text like ?", "%#{@search}%"]) if @search
+      else
+        if @search
+          evts = @klass.find(:all, :conditions =>
+                                      ["text like ?", "%#{@search}%"])
+        else
+          evts = @klass.find(:all, :conditions => @conds)
+        end
+      end
+      evts.each {|rec| yield rec }
     end
-    def where(conditions={})
-      @conds = conditions
+    def where(conditions=nil)
+      if @search && !can_search_with_conditions
+        raise Exception, "Can't do both where and search"
+      end
+
+      if conditions
+        @conds = @conds.merge(conditions)
+        self
+      else
+        # Get ready for where.not(...), which should happen in-memory
+        super(conditions)
+      end
+    end
+    def search(word)
+      if @conds && !can_search_with_conditions
+        raise Exception, "Can't do both search and where"
+      end
+      @search = word
       self
+    end
+    def can_search_with_conditions
+      @klass.respond_to? :where
     end
   end
 end
