@@ -121,4 +121,5 @@ describe Wolverine::ActiveRecordSource do
       evt.foo.should == "baz"
     end
   end
+  it "should not mutate existing sources when adding conditions"
 end

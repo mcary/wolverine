@@ -1,9 +1,12 @@
 module Wolverine
   class ActiveRecordSource < Source
     attr_reader :klass
-    def initialize(active_record_klass)
-      @conds = {}
+    def initialize(active_record_klass, conditions={}, search=nil)
       @klass = active_record_klass
+      @conds = conditions
+      @search = search
+      require 'logger'
+      ActiveRecord::Base.logger = Logger.new(STDOUT)
     end
     def self.open(table_name, connection_params)
       require 'active_record'
@@ -38,8 +41,8 @@ module Wolverine
       end
 
       if conditions
-        @conds = @conds.merge(conditions)
-        self
+        conds = @conds.merge(conditions)
+        return self.class.new(@klass, conds, @search)
       else
         # Get ready for where.not(...), which should happen in-memory
         super(conditions)
@@ -49,8 +52,7 @@ module Wolverine
       if @conds && !can_search_with_conditions
         raise Exception, "Can't do both search and where"
       end
-      @search = word
-      self
+      self.class.new(@klass, @conds, word)
     end
     def can_search_with_conditions
       @klass.respond_to? :where
