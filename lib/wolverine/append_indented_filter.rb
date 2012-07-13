@@ -2,6 +2,7 @@ module Wolverine
   class AppendIndentedFilter < Filter
     def each
       merged_evt = nil
+      prefix = self.prefix
       @source.each do |evt|
         if evt.to_s.start_with? prefix
           if merged_evt
