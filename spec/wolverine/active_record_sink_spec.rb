@@ -12,7 +12,7 @@ describe Wolverine::ActiveRecordSink do
       sink.run
 
       klass = Class.new(ActiveRecord::Base)
-      klass.class_eval { set_table_name "events" }
+      klass.class_eval { self.table_name = "events" }
       events = klass.all
       events.length.should == 1
       events.first.x.should == "x"

@@ -9,7 +9,7 @@ module Wolverine
     def self.create(source, table_name, columns, connection_params)
       require 'active_record'
       klass = Class.new(ActiveRecord::Base)
-      klass.class_eval { set_table_name table_name }
+      klass.class_eval { self.table_name = table_name }
       klass.establish_connection(connection_params)
       klass.connection.create_table table_name do |t|
         t.column :text, :text

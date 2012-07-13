@@ -12,7 +12,7 @@ module Wolverine
       require 'active_record'
       klass = Class.new(ActiveRecord::Base)
       klass.class_eval do
-        set_table_name table_name
+        self.table_name = table_name
         def to_s
           text
         end
