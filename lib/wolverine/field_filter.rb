@@ -4,32 +4,32 @@ module Wolverine
       super(source)
       @regex = regex
       @fields = fields
-      @class = Class.new(Array)
-      @class.class_eval(<<-EOF, __FILE__, __LINE__)
-        #{
-          # Create accessors that know the index of their field in the array. 
-          (0...@fields.size).
-            map do |i|
-              f = @fields[i]
-              "def #{f}; self[#{2+i}]; end"
-            end.join("\n"+(" "*8))
-        }
-        def text; self[0]; end
-        def to_s; self[0]; end
+      @class = Class.new(Event)
+      @class.class_eval <<-EOF
+        def initialize(text, evt, *flds)
+          super(text)
+          @evt = evt
+          #{@fields.map {|f| "@#{f}" }.join(", ")} =
+            #{@fields.size > 1 ? "flds" : "flds.first"}
+        end
         def method_missing(name, *args)
           # Danger: bypassing method access modifier (private/protected)
-          self[1].send(name) if args.empty?
+          @evt.send(name) if args.empty?
         end
       EOF
+      @class.send(:attr_reader, *@fields)
     end
     def each
       @source.each do |evt|
         md = @regex.match(evt.to_s)
-        field_vals = md ? md[1..md.length] : []
-        arr = @class.new(2+field_vals.size)
-        arr[0...arr.size] = evt.to_s, evt, *field_vals
-        yield arr
-        #yield @class.new(evt.to_s, evt, *md[1..md.length])
+        if md
+          yield @class.new(evt.to_s, evt, *md[1..md.length])
+        else
+          # Tired of no such method exceptions...
+          yield @class.new(evt.to_s, evt, *@fields.map {nil})
+          # was:
+          #yield evt
+        end
       end
     end
   end
