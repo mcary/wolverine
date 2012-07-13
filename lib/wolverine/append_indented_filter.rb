@@ -21,7 +21,7 @@ module Wolverine
     end
     def merge_events(ev1, ev2)
       str = ev2.to_s
-      Event.new(ev1.to_s + str.slice(prefix.length..str.length))
+      return ev1.to_s + str.slice(prefix.length..str.length)
     end
     def prefix
       "  "

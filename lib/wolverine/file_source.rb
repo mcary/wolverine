@@ -29,7 +29,7 @@ module Wolverine
               cnt = 0
             end
           end
-          yield Event.new(line)
+          yield line
         end
       end
       bar.finish if progress
