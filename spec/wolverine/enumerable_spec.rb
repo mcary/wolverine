@@ -19,5 +19,8 @@ describe Wolverine::Enumerable, "to_strings" do
   it "should allow filters to be applied to #to_a result" do
     subject.to_a.should respond_to(:append_indented)
   end
+  it "should result of #to_a should not spew on irb inspect" do
+    subject.to_a.inspect.should == "[1, (size: 2)...]"
+  end
 end
 

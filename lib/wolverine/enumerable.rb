@@ -17,6 +17,10 @@ module Wolverine
 
     def filterize(arr)
       arr.extend(FilterDSL)
+      def arr.inspect
+        super if size < 1
+        "[#{first.inspect}, (size: #{size})...]"
+      end
       arr
     end
   end
