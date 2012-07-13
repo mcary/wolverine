@@ -24,7 +24,17 @@ module Wolverine
       if can_search_with_conditions
         evts = @klass.where({})
         evts = evts.where(@conds) if !@conds.empty?
-        evts = evts.where(["text like ?", "%#{@search}%"]) if @search
+        if @search
+          evts = evts.where(["text like ?", "%#{@search}%"])
+          # Add a fulltext search if we're on MySQL.  Boolean fulltext search
+          # is slightly less strict than "like", so it will only be a prefilter.
+          # Fixme: table could be Innodb...
+          if !@search.include? '"' and
+              evts.connection.class.name.include? "Mysql"
+            evts = evts.where(["MATCH (text) AGAINST (? IN BOOLEAN MODE)",
+                               "\"#{@search}\""])
+          end
+        end
       else
         if @search
           evts = @klass.find(:all, :conditions =>
