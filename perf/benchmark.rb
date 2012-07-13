@@ -39,29 +39,29 @@ def run
     end
    
     x.report("cat") { system "time cat #{file} > /dev/null"; [0, bytes] }
-    x.report("gzip -d") { system "time gzip -d < #{file}.gz > /dev/null"; [0, bytes] }
-    #x.report("ruby -e") { system "time ruby -e '$stdin.each do |l| $stdout.write l; end' < #{file} > /dev/null"; [0, bytes] }
-    
-    File.open(file, "r") do |f|
-      cnt = 0
-      x.report("in-proc count") { f.each do |l| cnt += 1; end; [cnt, bytes] }
-      puts "line count: #{cnt}"
-    end
-
-    src = FileSource.new("#{file}.gz")
-    cnt = 0
-    x.report("gzfile src") { src.each do |ev| cnt += 1; end; [cnt, bytes] }
-
+#    x.report("gzip -d") { system "time gzip -d < #{file}.gz > /dev/null"; [0, bytes] }
+#    #x.report("ruby -e") { system "time ruby -e '$stdin.each do |l| $stdout.write l; end' < #{file} > /dev/null"; [0, bytes] }
+#
+#    File.open(file, "r") do |f|
+#      cnt = 0
+#      x.report("in-proc count") { f.each do |l| cnt += 1; end; [cnt, bytes] }
+#      puts "line count: #{cnt}"
+#    end
+#
+#    src = FileSource.new("#{file}.gz")
+#    cnt = 0
+#    x.report("gzfile src") { src.each do |ev| cnt += 1; end; [cnt, bytes] }
+#
     src = FileSource.new(file)
     cnt = 0
-    x.report("file src") { src.each do |ev| cnt += 1; end; [cnt, bytes] }
-
-    cnt = 0
-    x.report("file append") { src.append_indented.each do |ev| cnt += 1; end; [cnt, bytes] }
+#    x.report("file src") { src.each do |ev| cnt += 1; end; [cnt, bytes] }
+#
+#    cnt = 0
+#    x.report("file append") { src.append_indented.each do |ev| cnt += 1; end; [cnt, bytes] }
 
     arr = nil
 
-    x.report("file head to_a") { arr = src.head(cnt / 10).to_a }
+    x.report("file head to_a") { arr = src.head(100_000).to_a }
 
     x.report("arr append") { arr = arr.append_indented.to_a }
 
@@ -90,7 +90,7 @@ def run
     end
 
     x.report("all together now") do
-      src.head(cnt / 10).
+      src.head(100_000).
         append_indented.
         field(/\A.*? (pepper|mint) .*?\[(\d+)\]: /m, :host, :pid).
         group(:following => [:host, :pid], :from => /: Processing /).
