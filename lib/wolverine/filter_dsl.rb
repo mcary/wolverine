@@ -6,6 +6,9 @@ module Wolverine
     def field(regex, *fields)
       FieldFilter.new(self, regex, *fields)
     end
+    def parse_time(source_field, dest_field=source_field)
+      ParseTimeFilter.new(self, source_field, dest_field)
+    end
     def head(count, opts={})
       HeadFilter.new(self, count, opts)
     end

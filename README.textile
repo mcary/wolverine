@@ -9,7 +9,8 @@ h2. Synopsis
     fields(/.../, :timestamp, :host, :pid).
     group(:following => :pid, :from => /: Processing/).
     fields(/Processing (\w+)#(\w+)/, :controller, :action).
-    fields(/Session ID: (\w+)/, :session_id)
+    fields(/Session ID: (\w+)/, :session_id).
+    parse_time(:timestamp)
 
   by_hosts = requests.count_by(:host).histogram
   accounts_requests = requests.where(:controller => "AccountsController")
