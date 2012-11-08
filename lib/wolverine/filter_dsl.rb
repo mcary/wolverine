@@ -30,5 +30,8 @@ module Wolverine
     def group(opts)
       GroupFilter.new(self, opts)
     end
+    def interleave(other_source)
+      InterleaveFilter.new(self, other_source)
+    end
   end
 end
