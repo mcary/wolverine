@@ -13,6 +13,11 @@ For a list of convenience methods for building filter pipelines, see @FilterDSL@
 
 When processing a Rails log with multiple lines per requests and multiple web processes writing to the log concurrently, Wolverine can filter requests matching a particular criteria in a particular context.  For example, it can tell you the number of exceptions thrown on POST requests, even though those bits of information are contained in different log messages.
 
+h2. Installing
+
+bc. $ gem install winsome_wolverine
+
+(The gem name "wolverine" was already taken.)
 
 h2. Examples
 
