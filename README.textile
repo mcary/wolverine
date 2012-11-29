@@ -1,51 +1,84 @@
 h1. Wolverine
 
-An apetite for logs.
+An appetite for logs.
 
-h2. Synopsis
-
-  include Wolverine
-  requests = FileSource.new("log/production.log").append_indented.
-    fields(/.../, :timestamp, :host, :pid).
-    group(:following => :pid, :from => /: Processing/).
-    fields(/Processing (\w+)#(\w+)/, :controller, :action).
-    fields(/Session ID: (\w+)/, :session_id).
-    parse_time(:timestamp)
-
-  by_hosts = requests.count_by(:host).histogram
-  accounts_requests = requests.where(:controller => "AccountsController")
-
-  sessions = requests.group(:following => :session_id)
-  extended_sessions = sessions.fields(/new session id: (\w)/, :new_session_id).
-    link(:session_id => :new_session_id)
-
-  # Evaluate in one pass over data without slurping it all into memory
-  h, r, s = coevaluate(by_hosts, account_requests, sessions)
-
-  alert1 = requests.sliding_window(5.minutes).
-    on_match do |match|... end
-  
-  # Monitoring / alerting; never returns
-  coevaluate(alert1)
-
-  # Re-usable source (or should we just use functions??)
-  pipeline = ReplacableSource.new(...).do_stuff
-  pipeline.with_source(TailSource(...))
 
 h2. Summary
 
-Wolverine is a library for processing log files as streams.  Typical
-processing will start with a source for events and then filter them.
-Filters are built-up with method calls and return another stream whose
-evaluation can be forced with @each@ or left to evaluate later.
+Wolverine is a library for processing event streams.  Processing starts with a source of events, such as a log file.  Filters wrap a source and themselves look like a source.  The DSL supplies shortcut methods to easily build a pipeline of filters in this way.  Filters are processed incrementally as events are required; one can quickly get the first few events from a very long stream.
 
-When several processes need to be evaluated at once, the coevaluate
-helper can be used to ensure that, with one pass over the source, the
-minimum memory footprint is used.  When processing branches, events
-will be passed to each downstream filter in turn, giving each a chance
-to pass it along to its downstream filters before continuing.  This
-avoids a need to buffer the entire stream while one branch in the
-filter pipline processes them until the next one processes them.
+Events may be stored in a database for easy indexing.  See the @ActiveRecordSource@, which provides an optimized @where@ filter.
 
-Events may be stored in a database for easy indexing, see the
-IndexedSource and its children.
+For a list of convenience methods for building filter pipelines, see @FilterDSL@.
+
+When processing a Rails log with multiple lines per requests and multiple web processes writing to the log concurrently, Wolverine can filter requests matching a particular criteria in a particular context.  For example, it can tell you the number of exceptions thrown on POST requests, even though those bits of information are contained in different log messages.
+
+
+h2. Examples
+
+<pre>
+<code>
+  include Wolverine
+
+  # Read events from a file, one per line
+  requests = FileSource.new("log/production.log").
+
+    # In this log, subsequent lines of a message may appear indented,
+    # so coalesce them into one event.
+    append_indented.
+
+    # Parse text out into fields using regex captures.  Imagine a log
+    # line that looks like this:
+    #   Nov 19 19:08:27.931605 dhcp-172-25-211-77 45471: Hello World
+    field(/\A(\w+ \d+ \d+:\d+:\d+\.\d{6}) (\w+) (\w+):/m,
+          :timestamp, :host, :pid).
+
+    # Group messages from a single request together.
+    # Since the logs are from multiple web server processes, messages
+    # might be interleaved with those from other processes.  Use the
+    # :pid and :host fields to separate them.  Whenever a processes
+    # logs "Processing," that's a new request.
+    group(:following => [:pid, :host], :from => /: Processing/).
+
+    # Pull some per-request fields out of the requests.
+    fields(/Processing (\w+)#(\w+)/, :controller, :action).
+    fields(/Session ID: (\w+)/, :session_id)
+
+  # Filter by a field.  Note this returns a new filter immediately
+  # but does not consume any input yet.
+  accounts_requests = requests.where(:controller => "AccountsController")
+
+  # Consume the entire stream and count the number of events
+  accounts_requests.count
+
+  # View the first five matches with "less"
+  accounts_requests.head(5).less
+
+  # Group requests into session traces
+  sessions = requests.group(:following => :session_id)
+
+  # Turn the timestamp into a real ruby object
+  ts_requests = requests.parse_time(:timestamp)
+
+  # Shuffle two streams into one, with events in order of timestamp
+  ts_requests.interleave(other_host_requests)
+</code>
+</pre>
+
+Wolverine works well interactively:
+
+bc. $ irb -r wolverine
+
+You may also wish to store some helper functions specific to your log format and/or task at hand to pre-load into your session:
+
+bc. $ irb -r my-app
+
+
+h2. Road Map
+
+* Sources to read files over SSH
+* Sources that can tail a file
+* Histograms and tables
+* Faster field extraction (regex matching is the bottleneck)
+* Processing multiple pipelines in one pass over the underlying data
+* Sliding window filters that emit when a 5-minute average exceeds a threshold
