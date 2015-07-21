@@ -1,4 +1,9 @@
-require 'generator'
+begin
+  require 'generator' # Ruby 1.8.7
+rescue LoadError
+  # Enumerator::Generator loaded by default for Ruby 2
+  Generator = Enumerator::Generator
+end
 
 module Wolverine
   class InterleaveFilter < Filter
