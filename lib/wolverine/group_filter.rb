@@ -28,6 +28,7 @@ module Wolverine
       groups.each do |k,group|
         yield merge_events(group)
       end
+      nil
     end
     private
     def arg_to_a(arg)
