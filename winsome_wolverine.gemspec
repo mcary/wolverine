@@ -10,4 +10,6 @@ Gem::Specification.new do |s|
   s.email       = 'marcel@oak.homeunix.org'
   s.files       = Dir["README.textile", "lib/**/*.rb"]
   s.homepage    = 'http://github.com/mcary/wolverine'
+
+  s.add_dependency("progressbar")
 end
