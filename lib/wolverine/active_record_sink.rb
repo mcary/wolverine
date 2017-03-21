@@ -1,3 +1,5 @@
+require 'wolverine/active_record_class_generator'
+
 module Wolverine
   class ActiveRecordSink < Sink
     attr_reader :columns, :klass
@@ -8,8 +10,8 @@ module Wolverine
     end
     def self.create(source, table_name, columns, connection_params)
       require 'active_record'
-      klass = Class.new(ActiveRecord::Base)
-      klass.class_eval { self.table_name = table_name }
+      gen = ActiveRecordClassGenerator.new(self, table_name)
+      klass = gen.generate
       klass.establish_connection(connection_params)
       klass.connection.create_table table_name do |t|
         t.column :text, :text

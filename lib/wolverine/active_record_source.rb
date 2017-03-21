@@ -1,3 +1,5 @@
+require 'wolverine/active_record_class_generator'
+
 module Wolverine
   class ActiveRecordSource < Source
     attr_reader :klass
@@ -10,9 +12,9 @@ module Wolverine
     end
     def self.open(table_name, connection_params)
       require 'active_record'
-      klass = Class.new(ActiveRecord::Base)
+      gen = ActiveRecordClassGenerator.new(self, table_name)
+      klass = gen.generate
       klass.class_eval do
-        self.table_name = table_name
         def to_s
           text
         end

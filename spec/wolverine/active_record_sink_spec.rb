@@ -5,14 +5,16 @@ describe Wolverine::ActiveRecordSink do
     Tempfile.open("wol-spec") do |file|
       source = Wolverine::ArraySource.new(["x y"])
       filt = Wolverine::FieldFilter.new(source, /(x)/, :x)
+      config = { :adapter => "sqlite3", :database => file.path }
       sink = Wolverine::ActiveRecordSink.create(filt, "events", [:x],
-                                                :adapter => "sqlite3",
-                                                :database => file.path)
+                                                config)
 
       sink.run
 
-      klass = Class.new(ActiveRecord::Base)
-      klass.class_eval { self.table_name = "events" }
+      gen = Wolverine::ActiveRecordClassGenerator.
+        new(self.class, "events")
+      klass = gen.generate
+      klass.establish_connection(config)
       events = klass.all
       events.length.should == 1
       events.first.x.should == "x"
