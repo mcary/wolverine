@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'winsome_wolverine'
 
-  s.version     = '0.1.0'
+  s.version     = '0.2.0'
   s.date        = '2012-11-28'
   s.summary     = "Log file processor"
   s.description = "Library and DSL to process log files with "+
