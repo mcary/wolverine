@@ -12,8 +12,11 @@ module Wolverine
       progress = self.progress
       if progress
         size = File.size(@filename)
-        bar = ProgressBar.new(@filename, size)
-        bar.file_transfer_mode
+        bar = ProgressBar.create(
+          title: @filename,
+          total: size,
+          format: "%t |%B| %cB %E",
+        )
       end
       File.open(@filename, "r") do |file|
         realfile = file
@@ -25,7 +28,7 @@ module Wolverine
             if cnt < bar_update
               cnt += 1
             else
-              bar.set(realfile.tell)
+              bar.progress = realfile.tell
               cnt = 0
             end
           end
