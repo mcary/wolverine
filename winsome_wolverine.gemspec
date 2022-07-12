@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.add_dependency("progressbar")
 
   # AR 5 depends on Ruby >= 2.2
-  s.add_development_dependency("activerecord", ["~> 4.2.0"])
+  s.add_development_dependency("activerecord", "~> 5.2.8")
   s.add_development_dependency("sqlite3")
   s.add_development_dependency("rspec", ["~> 2.14.0"])
 end
